@@ -1,0 +1,144 @@
+unit Unit1;
+interface
+uses
+Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+Dialogs, Buttons, StdCtrls, ExtCtrls, Grids;
+type
+TForm1 = class(TForm)
+OpenDialog1: TOpenDialog;
+SaveDialog1: TSaveDialog;
+    BitBtn1: TBitBtn;
+    StringGrid1: TStringGrid;
+    Button6: TButton;
+    Button7: TButton;
+    Button8: TButton;
+
+
+procedure BitBtn1Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+
+    
+
+private
+{ Private declarations }
+public
+{ Public declarations }
+end;
+
+var
+Form1: TForm1;
+implementation
+{$R *.dfm}
+
+
+
+    procedure TForm1.BitBtn1Click(Sender: TObject);
+begin
+    Close //Çàêðûòèå ôàéëà çàïèñåé ïðè íàæàòèè êíîïêè «Close»
+end;
+    procedure TForm1.Button6Click(Sender: TObject);  //ñîðòèðîâêà
+    var n,m,i,j,k,p:integer;
+    s:string;
+begin
+stringgrid1.cells[j,i]:=stringgrid1.cells[j,i];       //âî âñåõ ñòîëáöàõ
+    n:=stringgrid1.ColCount;
+    m:=stringgrid1.RowCount;
+
+    for j:=0 to n-1 do
+begin
+
+    for i:=0 to m-2 do                         //îòñîðòèðóåì ïî àëôàâèòó
+    for p:=i+1 to m-1 do
+    if stringgrid1.Cells[j,i]>stringgrid1.Cells[j,p] then
+begin
+    s:=stringgrid1.Cells[j,i];
+    stringgrid1.Cells[j,i]:=stringgrid1.Cells[j,p];
+    stringgrid1.Cells[j,p]:=s;
+end;
+
+    k:=-1;        //ïåðåñòàâèì ÷èñëà ââåðõ
+    for i:=0 to m do
+    if StrToFloatDef(stringgrid1.Cells[j,i],-1000)<>-1000 then
+begin
+    k:=k+1;
+    s:=stringgrid1.Cells[j,i];
+    for p:=i downto k+1 do
+    stringgrid1.Cells[j,p]:=stringgrid1.Cells[j,p-1];
+    stringgrid1.Cells[j,k]:=s;
+end;
+
+    for i:=0 to k-1 do          //îòñîðòèðóåì èõ ïî âîçðàñòàíèþ
+    for p:=i+1 to k do
+    if StrToFloat(stringgrid1.Cells[j,i])>StrToFloat(stringgrid1.Cells[j,p]) then
+begin
+    s:=stringgrid1.Cells[j,i];
+    stringgrid1.Cells[j,i]:=stringgrid1.Cells[j,p];
+    stringgrid1.Cells[j,p]:=s;
+end;
+end;
+end;
+
+    procedure TForm1.Button7Click(Sender: TObject);  //îòêðûòèå
+    var
+    FName, str:string;
+    f:TextFile;
+    n,m,k, i:integer;
+begin
+    if OpenDialog1.Execute then begin
+    fName := OpenDialog1.FileName;
+end;
+    with StringGrid1 do begin
+    RowCount := 0;
+    ColCount := 0;
+    AssignFile(f,FName);
+    Reset(f);
+    n:=0;
+    m:=0;
+    while not eof(f) do
+begin
+    readln(f, str);
+    n:=n+1;
+    k:=1;
+    for i:=1 to length(str) do
+begin
+    if str[i]=#9 then k:=k+1;
+    if k>m then m:=k;
+end;
+    ColCount:=m;
+    RowCount:=n;
+    Cols[0].LoadFromFile(fName);
+    for i:=RowCount downto 1 do Rows[i].Text:=Rows[i].Text;
+    for i:=0 to RowCount do
+begin
+    Rows[i].Delimiter:=#9;
+    Rows[i].DelimitedText:=Cells[0,i];
+end;
+end;
+end;
+end;
+
+    procedure TForm1.Button8Click(Sender: TObject);  //ñîõðàíåíèå îòñîðòèðîâàííûõ äàííûõ
+    Var f: TextFile;
+    i, k: Integer;
+    s1:string;
+begin
+    if SaveDialog1.Execute
+then begin
+    AssignFile(f,SaveDialog1.FileName);
+    Rewrite(f);
+    Append(f);
+    for i:=0 to StringGrid1.RowCount-1 do
+begin
+    for k:=0 to StringGrid1.ColCount-1 do
+begin
+    s1:= s1 + #9 + StringGrid1.Cells[k,i];
+end;
+    Writeln(f,s1);
+    s1:='  ';
+end;
+    CloseFile(f);
+end;
+end;
+end.
